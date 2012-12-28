@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
-import java.util.MissingFormatArgumentException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -18,12 +17,12 @@ import com.dropbox.client2.session.WebAuthSession;
 import com.dropbox.client2.session.Session.AccessType;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
+import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
+import com.fathzer.soft.jclop.swing.FileChooserPanel;
+import com.fathzer.soft.jclop.swing.MultipleURIChooserDialog;
 import com.fathzer.soft.jclop.swing.URIChooser;
 
 import net.astesana.ajlib.swing.Utils;
-import net.astesana.ajlib.swing.dialog.urichooser.AbstractURIChooserPanel;
-import net.astesana.ajlib.swing.dialog.urichooser.FileChooserPanel;
-import net.astesana.ajlib.swing.dialog.urichooser.MultipleURIChooserDialog;
 import net.astesana.ajlib.swing.framework.Application;
 
 public class Test extends Application {
