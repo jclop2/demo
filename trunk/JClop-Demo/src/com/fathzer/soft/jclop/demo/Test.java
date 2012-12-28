@@ -51,7 +51,7 @@ public class Test extends Application {
 	@Override
 	protected Container buildMainPanel() {
 		JPanel panel = new JPanel();
-		final DropboxService service = new DropboxService(new File("cache/test"), getAPI());
+		final DropboxService service = new DropboxService(new File("cache"), getAPI());
 		final AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
 		final AbstractURIChooserPanel fileChooser = new FileChooserPanel();
 		final JButton btn = new JButton("Open");
