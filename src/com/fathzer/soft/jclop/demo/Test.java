@@ -17,10 +17,10 @@ import com.dropbox.client2.session.WebAuthSession;
 import com.dropbox.client2.session.Session.AccessType;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
-import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
-import com.fathzer.soft.jclop.swing.FileChooserPanel;
-import com.fathzer.soft.jclop.swing.MultipleURIChooserDialog;
 import com.fathzer.soft.jclop.swing.URIChooser;
+import com.fathzer.soft.jclop.swing.FileChooserPanel;
+import com.fathzer.soft.jclop.swing.URIChooserDialog;
+import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 
 import net.astesana.ajlib.swing.Utils;
 import net.astesana.ajlib.swing.framework.Application;
@@ -41,7 +41,7 @@ public class Test extends Application {
 				boolean appAccess = bundle.containsKey("accessType")?bundle.getString("accessType").equalsIgnoreCase("DROPBOX"):false;
 				API = new DropboxAPI<WebAuthSession>(new WebAuthSession(new AppKeyPair(key, secret), appAccess?AccessType.DROPBOX:AccessType.APP_FOLDER));
 			} catch (MissingResourceException e) {
-				URIChooser.showError(null, "You must enter valid application keys in keys.properties file.");
+				AbstractURIChooserPanel.showError(null, "You must enter valid application keys in keys.properties file.");
 				System.exit(-1);
 			}
 		}
@@ -52,14 +52,14 @@ public class Test extends Application {
 	protected Container buildMainPanel() {
 		JPanel panel = new JPanel();
 		final DropboxService service = new DropboxService(new File("cache"), getAPI());
-		final AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
-		final AbstractURIChooserPanel fileChooser = new FileChooserPanel();
+		final URIChooser dbChooser = new DropboxURIChooser(service);
+		final URIChooser fileChooser = new FileChooserPanel();
 		final JButton btn = new JButton("Open");
 		panel.add(btn);
 		btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MultipleURIChooserDialog dialog = new MultipleURIChooserDialog(Utils.getOwnerWindow(btn), "Open", new AbstractURIChooserPanel[]{fileChooser,dbChooser});
+				URIChooserDialog dialog = new URIChooserDialog(Utils.getOwnerWindow(btn), "Open", new URIChooser[]{fileChooser,dbChooser});
 				dialog.setSelectedURI(lastSelected);
 				lastSelected = dialog.showDialog();
 				System.out.println (lastSelected);
@@ -71,7 +71,7 @@ public class Test extends Application {
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MultipleURIChooserDialog dialog = new MultipleURIChooserDialog(Utils.getOwnerWindow(btn), "Save", new AbstractURIChooserPanel[]{fileChooser,dbChooser});
+				URIChooserDialog dialog = new URIChooserDialog(Utils.getOwnerWindow(btn), "Save", new URIChooser[]{fileChooser,dbChooser});
 				dialog.setSaveDialog(true);
 				dialog.setSelectedURI(lastSelected);
 				lastSelected = dialog.showDialog();
