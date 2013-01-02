@@ -99,7 +99,7 @@ public class Test extends Application {
 
 	private void doDialog(boolean save) {
 		Locale.setDefault(Locale.getDefault().equals(Locale.US)?Locale.FRANCE:Locale.US);
-//		JComponent.setDefaultLocale(Locale.getDefault());
+		JComponent.setDefaultLocale(Locale.getDefault());
 		System.out.println ("Locale is set to "+Locale.getDefault());
 		Application.LOCALIZATION = new LocalizationData(LocalizationData.DEFAULT_BUNDLE_NAME);
 		((Component)fileChooser).setLocale(Locale.getDefault());
