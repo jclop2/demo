@@ -4,7 +4,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
@@ -28,6 +34,7 @@ import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 
 import net.astesana.ajlib.swing.Utils;
 import net.astesana.ajlib.swing.framework.Application;
+import net.astesana.ajlib.utilities.FileUtils;
 import net.astesana.ajlib.utilities.LocalizationData;
 
 public class Test extends Application {
@@ -71,6 +78,21 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doDialog(false);
+				if ((lastSelected!=null) && lastSelected.getScheme().equalsIgnoreCase("file"))  {
+					System.out.println ("trying to read file");
+					try {
+						File file = FileUtils.getCanonical(new File(lastSelected));
+						BufferedReader reader = new BufferedReader(new FileReader(file));
+						try {
+							System.out.println ("first line="+reader.readLine());
+						} finally {
+							reader.close();
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		
@@ -80,6 +102,18 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doDialog(true);
+				if ((lastSelected!=null) && lastSelected.getScheme().equalsIgnoreCase("file"))  {
+					System.out.println ("trying to read file");
+					try {
+						File file = FileUtils.getCanonical(new File(lastSelected));
+						OutputStream out = new FileOutputStream(file, true);
+						System.out.println ("file opened for writing");
+						out.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		
@@ -99,17 +133,18 @@ public class Test extends Application {
 
 	private void doDialog(boolean save) {
 		Locale.setDefault(Locale.getDefault().equals(Locale.US)?Locale.FRANCE:Locale.US);
+		
 		JComponent.setDefaultLocale(Locale.getDefault());
 		System.out.println ("Locale is set to "+Locale.getDefault());
-		Application.LOCALIZATION = new LocalizationData(LocalizationData.DEFAULT_BUNDLE_NAME);
+//		Application.LOCALIZATION = new LocalizationData(LocalizationData.DEFAULT_BUNDLE_NAME);
 		((Component)fileChooser).setLocale(Locale.getDefault());
 		DropboxURIChooser dropboxChooser = new DropboxURIChooser(service);
 		System.out.println ("DropboxChooser is "+dropboxChooser.getLocale());
 		try {
 			URIChooserDialog dialog = new URIChooserDialog(getJFrame(), save?"Save":"Open", new URIChooser[]{fileChooser,dropboxChooser});
 			dialog.setSaveDialog(save);
-			URI lastSelected;
-			lastSelected = new URI("Dropbox://20989652:p0wgsfpjc6ty73b-klm3j0m4hn2c0l1@cloud.astesana.net/Jean-Marc+Astesana/Comptes");
+//			URI lastSelected;
+			URI totolastSelected = new URI("Dropbox://20989652:p0wgsfpjc6ty73b-klm3j0m4hn2c0l1@cloud.astesana.net/Jean-Marc+Astesana/Comptes");
 //			lastSelected = new URI("Dropbox://20989654:p0wgsfpjc6sf73b-klm3j0m4hn2c0l1@cloud.astesana.net/blabla/Comptes");
 			dialog.setSelectedURI(lastSelected);
 			lastSelected = dialog.showDialog();
