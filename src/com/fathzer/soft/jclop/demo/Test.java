@@ -1,12 +1,10 @@
 package com.fathzer.soft.jclop.demo;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,14 +33,12 @@ import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 import net.astesana.ajlib.swing.Utils;
 import net.astesana.ajlib.swing.framework.Application;
 import net.astesana.ajlib.utilities.FileUtils;
-import net.astesana.ajlib.utilities.LocalizationData;
 
 public class Test extends Application {
 	private URI lastSelected = null;
 	private static DropboxAPI<WebAuthSession> API;
-	private URIChooser dbChooser;
-	private URIChooser fileChooser;
 	private DropboxService service;
+	private URIChooserDialog dialog;
 	
 	private Test() {
 		service = new DropboxService(new File("cache"), getAPI());
@@ -70,8 +66,8 @@ public class Test extends Application {
 	@Override
 	protected Container buildMainPanel() {
 		JPanel panel = new JPanel();
-		dbChooser = new DropboxURIChooser(service);
-		fileChooser = new FileChooserPanel();
+		dialog = new URIChooserDialog(getJFrame(), "", new URIChooser[]{new FileChooserPanel(),new DropboxURIChooser(service)});
+
 		JButton btn = new JButton("Open");
 		panel.add(btn);
 		btn.addActionListener(new ActionListener() {
@@ -106,9 +102,11 @@ public class Test extends Application {
 					System.out.println ("trying to read file");
 					try {
 						File file = FileUtils.getCanonical(new File(lastSelected));
+						boolean isNew = !file.exists();
 						OutputStream out = new FileOutputStream(file, true);
 						System.out.println ("file opened for writing");
 						out.close();
+						if (isNew) file.delete();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -122,6 +120,7 @@ public class Test extends Application {
 		btnOnly.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
 				dbChooser.setSelectedURI(lastSelected);
 				lastSelected = (new DropboxURIChooser(service)).showOpenDialog(Utils.getOwnerWindow(btnOnly), "Open Dropbox");
 				System.out.println (lastSelected);
@@ -132,16 +131,14 @@ public class Test extends Application {
 	}
 
 	private void doDialog(boolean save) {
+		dialog.setTitle(save?"Save":"Open");
 		Locale.setDefault(Locale.getDefault().equals(Locale.US)?Locale.FRANCE:Locale.US);
-		
 		JComponent.setDefaultLocale(Locale.getDefault());
 		System.out.println ("Locale is set to "+Locale.getDefault());
-//		Application.LOCALIZATION = new LocalizationData(LocalizationData.DEFAULT_BUNDLE_NAME);
-		((Component)fileChooser).setLocale(Locale.getDefault());
+		dialog.setLocale(Locale.getDefault());
 		DropboxURIChooser dropboxChooser = new DropboxURIChooser(service);
 		System.out.println ("DropboxChooser is "+dropboxChooser.getLocale());
 		try {
-			URIChooserDialog dialog = new URIChooserDialog(getJFrame(), save?"Save":"Open", new URIChooser[]{fileChooser,dropboxChooser});
 			dialog.setSaveDialog(save);
 //			URI lastSelected;
 			URI totolastSelected = new URI("Dropbox://20989652:p0wgsfpjc6ty73b-klm3j0m4hn2c0l1@cloud.astesana.net/Jean-Marc+Astesana/Comptes");
