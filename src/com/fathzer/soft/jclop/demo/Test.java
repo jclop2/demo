@@ -121,7 +121,7 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
-				dbChooser.setSelectedURI(lastSelected);
+				if ((lastSelected!=null) && service.getScheme().equals(lastSelected.getScheme())) dbChooser.setSelectedURI(lastSelected);
 				lastSelected = (new DropboxURIChooser(service)).showOpenDialog(Utils.getOwnerWindow(btnOnly), "Open Dropbox");
 				System.out.println (lastSelected);
 			}
