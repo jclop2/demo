@@ -144,6 +144,7 @@ public class Test extends Application {
 			URI totolastSelected = new URI("Dropbox://20989652:p0wgsfpjc6ty73b-klm3j0m4hn2c0l1@cloud.astesana.net/Jean-Marc+Astesana/Comptes");
 //			lastSelected = new URI("Dropbox://20989654:p0wgsfpjc6sf73b-klm3j0m4hn2c0l1@cloud.astesana.net/blabla/Comptes");
 			dialog.setSelectedURI(lastSelected);
+			dialog.pack();
 			lastSelected = dialog.showDialog();
 			System.out.println (lastSelected);
 		} catch (URISyntaxException e) {

@@ -5,6 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JClop-Dropbox"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/A-JLib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JClop"/>
-	<classpathentry kind="var" path="DROPBOX/lib/dropbox-java-sdk-1.5.3.jar" sourcepath="/DROPBOX/src/main/java"/>
+	<classpathentry kind="var" path="DROPBOX" sourcepath="/DROPBOX/src/main/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
