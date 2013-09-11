@@ -30,9 +30,9 @@ import com.fathzer.soft.jclop.swing.FileChooserPanel;
 import com.fathzer.soft.jclop.swing.URIChooserDialog;
 import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 
-import net.astesana.ajlib.swing.Utils;
-import net.astesana.ajlib.swing.framework.Application;
-import net.astesana.ajlib.utilities.FileUtils;
+import com.fathzer.soft.ajlib.swing.Utils;
+import com.fathzer.soft.ajlib.swing.framework.Application;
+import com.fathzer.soft.ajlib.utilities.FileUtils;
 
 public class Test extends Application {
 	private URI lastSelected = null;
