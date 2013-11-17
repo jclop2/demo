@@ -52,7 +52,9 @@ public class Test extends Application {
 				ResourceBundle bundle = ResourceBundle.getBundle(Test.class.getPackage().getName()+".keys"); //$NON-NLS-1$
 				String key = bundle.getString("appKey");
 				String secret = bundle.getString("appSecret");
-				if (key.length()==0 || secret.length()==0) throw new MissingResourceException("App key and secret not provided","","");
+				if (key.length()==0 || secret.length()==0) {
+					throw new MissingResourceException("App key and secret not provided","","");
+				}
 				boolean appAccess = bundle.containsKey("accessType")?bundle.getString("accessType").equalsIgnoreCase("DROPBOX"):false;
 				API = new DropboxAPI<WebAuthSession>(new WebAuthSession(new AppKeyPair(key, secret), appAccess?AccessType.DROPBOX:AccessType.APP_FOLDER));
 			} catch (MissingResourceException e) {
