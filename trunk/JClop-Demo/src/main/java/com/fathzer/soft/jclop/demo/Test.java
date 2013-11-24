@@ -55,7 +55,7 @@ public class Test extends Application {
 				if (key.length()==0 || secret.length()==0) {
 					throw new MissingResourceException("App key and secret not provided","","");
 				}
-				boolean appAccess = bundle.containsKey("accessType")?bundle.getString("accessType").equalsIgnoreCase("DROPBOX"):false;
+				boolean appAccess = bundle.containsKey("accessType")?"DROPBOX".equalsIgnoreCase(bundle.getString("accessType")):false;
 				API = new DropboxAPI<WebAuthSession>(new WebAuthSession(new AppKeyPair(key, secret), appAccess?AccessType.DROPBOX:AccessType.APP_FOLDER));
 			} catch (MissingResourceException e) {
 				AbstractURIChooserPanel.showError(null, "You must enter valid application keys in keys.properties file.",Locale.getDefault());
@@ -76,7 +76,7 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doDialog(false);
-				if ((lastSelected!=null) && lastSelected.getScheme().equalsIgnoreCase("file"))  {
+				if ((lastSelected!=null) && "file".equalsIgnoreCase(lastSelected.getScheme()))  {
 					System.out.println ("trying to read file");
 					try {
 						File file = FileUtils.getCanonical(new File(lastSelected));
@@ -100,7 +100,7 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doDialog(true);
-				if ((lastSelected!=null) && lastSelected.getScheme().equalsIgnoreCase("file"))  {
+				if ((lastSelected!=null) && "file".equalsIgnoreCase(lastSelected.getScheme()))  {
 					System.out.println ("trying to read file");
 					try {
 						File file = FileUtils.getCanonical(new File(lastSelected));
@@ -108,7 +108,9 @@ public class Test extends Application {
 						OutputStream out = new FileOutputStream(file, true);
 						System.out.println ("file opened for writing");
 						out.close();
-						if (isNew) file.delete();
+						if (isNew) {
+							file.delete();
+						}
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -123,7 +125,9 @@ public class Test extends Application {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
-				if ((lastSelected!=null) && service.getScheme().equals(lastSelected.getScheme())) dbChooser.setSelectedURI(lastSelected);
+				if ((lastSelected!=null) && service.getScheme().equals(lastSelected.getScheme())) {
+					dbChooser.setSelectedURI(lastSelected);
+				}
 				lastSelected = (new DropboxURIChooser(service)).showOpenDialog(Utils.getOwnerWindow(btnOnly), "Open Dropbox");
 				System.out.println (lastSelected);
 			}
