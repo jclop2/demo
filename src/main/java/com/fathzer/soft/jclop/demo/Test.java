@@ -19,50 +19,40 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import com.dropbox.client2.DropboxAPI;
-import com.dropbox.client2.session.AppKeyPair;
-import com.dropbox.client2.session.WebAuthSession;
-import com.dropbox.client2.session.Session.AccessType;
+import com.dropbox.core.DbxAppInfo;
+import com.dropbox.core.DbxRequestConfig;
+import com.fathzer.soft.jclop.dropbox.DbxConnectionData;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
 import com.fathzer.soft.jclop.swing.URIChooser;
 import com.fathzer.soft.jclop.swing.FileChooserPanel;
 import com.fathzer.soft.jclop.swing.URIChooserDialog;
 import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
-
 import com.fathzer.soft.ajlib.swing.Utils;
 import com.fathzer.soft.ajlib.swing.framework.Application;
 import com.fathzer.soft.ajlib.utilities.FileUtils;
 
 public class Test extends Application {
 	private URI lastSelected = null;
-	private static DropboxAPI<WebAuthSession> API;
 	private DropboxService service;
 	private URIChooserDialog dialog;
 	
-	private Test() {
-		service = new DropboxService(new File("cache"), getAPI());
+	private Test(DbxAppInfo appInfo) {
+		DbxConnectionData data = new DbxConnectionData(new DbxRequestConfig("Test", "fr"), appInfo);
+		service = new DropboxService(new File("cache"), data);
 	}
 	
-	DropboxAPI<WebAuthSession> getAPI() {
-		if (API==null) {
-			try {
-				// For obvious reasons, your application keys and secret are not released with the source files.
-				// You should edit keys.properties in order to run this demo
-				ResourceBundle bundle = ResourceBundle.getBundle(Test.class.getPackage().getName()+".keys"); //$NON-NLS-1$
-				String key = bundle.getString("appKey");
-				String secret = bundle.getString("appSecret");
-				if (key.length()==0 || secret.length()==0) {
-					throw new MissingResourceException("App key and secret not provided","","");
-				}
-				boolean appAccess = bundle.containsKey("accessType")?"DROPBOX".equalsIgnoreCase(bundle.getString("accessType")):false;
-				API = new DropboxAPI<WebAuthSession>(new WebAuthSession(new AppKeyPair(key, secret), appAccess?AccessType.DROPBOX:AccessType.APP_FOLDER));
-			} catch (MissingResourceException e) {
-				AbstractURIChooserPanel.showError(null, "You must enter valid application keys in keys.properties file.",Locale.getDefault());
-				System.exit(-1);
-			}
+	private static DbxAppInfo getAppInfo() throws MissingResourceException {
+		// For obvious reasons, your application keys and secret are not released with the source files.
+		// You should edit keys.properties in order to run this demo
+		ResourceBundle bundle = ResourceBundle.getBundle(Test.class.getPackage().getName()+".keys"); //$NON-NLS-1$
+		String key = bundle.getString("appKey");
+		String secret = bundle.getString("appSecret");
+		if (key.length()==0 || secret.length()==0) {
+			throw new MissingResourceException("App key and secret not provided","","");
 		}
-		return API;
+//		boolean appAccess = bundle.containsKey("accessType")?"DROPBOX".equalsIgnoreCase(bundle.getString("accessType")):false;
+		return new DbxAppInfo(key, secret);
 	}
 
 	@Override
@@ -162,6 +152,11 @@ public class Test extends Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Test().launch();
+		try {
+			new Test(getAppInfo()).launch();
+		} catch (MissingResourceException e) {
+			AbstractURIChooserPanel.showError(null, "You must enter valid application keys in keys.properties file.",Locale.getDefault());
+			System.exit(-1);
+		}
 	}
 }
