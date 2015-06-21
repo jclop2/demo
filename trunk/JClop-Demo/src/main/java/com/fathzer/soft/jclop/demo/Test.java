@@ -3,10 +3,13 @@ package com.fathzer.soft.jclop.demo;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -21,6 +24,8 @@ import javax.swing.JPanel;
 
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxRequestConfig;
+import com.fathzer.soft.jclop.JClopException;
+import com.fathzer.soft.jclop.SynchronizationState;
 import com.fathzer.soft.jclop.dropbox.DbxConnectionData;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
@@ -37,7 +42,7 @@ public class Test extends Application {
 	private DropboxService service;
 	private URIChooserDialog dialog;
 	
-	private Test(DbxAppInfo appInfo) {
+	private Test(DbxAppInfo appInfo) throws IOException {
 		DbxConnectionData data = new DbxConnectionData(new DbxRequestConfig("Test", "fr"), appInfo);
 		service = new DropboxService(new File("cache"), data);
 	}
@@ -142,9 +147,50 @@ public class Test extends Application {
 			dialog.setSelectedURI(lastSelected);
 			dialog.pack();
 			lastSelected = dialog.showDialog();
-			System.out.println (lastSelected);
+			if (lastSelected!=null) {
+				System.out.println ("You selected "+lastSelected);
+				try {
+					if (save) {
+						doWrite(lastSelected);
+					} else {
+						doRead(lastSelected);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	private void doRead(URI uri) throws IOException {
+		SynchronizationState state = service.synchronize(uri, null, Locale.getDefault());
+		if (SynchronizationState.REMOTE_DELETED.equals(state)) {
+			System.out.println("Remote file has been deleted");
+		} else if (SynchronizationState.REMOTE_DELETED.equals(state)) {
+			System.out.println("There's a conflict between remote and local file");
+		} else {
+			File file = service.getLocalFile(uri);
+			System.out.println ("Local file is stored in "+file);
+		}
+	}
+
+	private void doWrite(URI uri) throws IOException {
+		File file = service.getLocalFileForWriting(uri);
+		BufferedWriter out = new BufferedWriter(new FileWriter(file));
+		try {
+			out.write("Hello world "+System.currentTimeMillis());
+		} finally {
+			out.close();
+		}
+		SynchronizationState state = service.synchronize(uri, null, Locale.getDefault());
+		if (SynchronizationState.REMOTE_DELETED.equals(state)) {
+			System.out.println("Remote file has been deleted");
+		} else if (SynchronizationState.REMOTE_DELETED.equals(state)) {
+			System.out.println("There's a conflict between remote and local file");
+		} else {
+			System.out.println ("File was sent to Dropbox");
 		}
 	}
 
@@ -156,6 +202,9 @@ public class Test extends Application {
 			new Test(getAppInfo()).launch();
 		} catch (MissingResourceException e) {
 			AbstractURIChooserPanel.showError(null, "You must enter valid application keys in keys.properties file.",Locale.getDefault());
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
