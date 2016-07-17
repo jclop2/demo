@@ -1,8 +1,6 @@
 package com.fathzer.soft.jclop.demo;
 
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,30 +12,24 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxRequestConfig;
+import com.fathzer.soft.jclop.Service;
 import com.fathzer.soft.jclop.SynchronizationState;
 import com.fathzer.soft.jclop.dropbox.DbxConnectionData;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
 import com.fathzer.soft.jclop.swing.URIChooser;
 import com.fathzer.soft.jclop.swing.FileChooserPanel;
-import com.fathzer.soft.jclop.swing.URIChooserDialog;
 import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 import com.fathzer.soft.ajlib.swing.framework.Application;
 
-public class Test extends Application {
-	protected URI lastSelected = null;
-	protected DropboxService service;
-	protected URIChooserDialog dialog;
+public class Test extends Application implements DemoPanel.DemoActions {
+	protected URIChooser[] choosers;
 	
 	protected Test(DbxAppInfo appInfo) throws IOException {
 		DbxConnectionData data = new DbxConnectionData("Test application", new DbxRequestConfig("Test", "fr"), appInfo);
-		service = new DropboxService(new File("cache"), data);
+		choosers = new URIChooser[]{new FileChooserPanel(),new DropboxURIChooser(new DropboxService(new File("cache"), data))};
 	}
 	
 	protected static DbxAppInfo getAppInfo() throws MissingResourceException {
@@ -55,56 +47,11 @@ public class Test extends Application {
 
 	@Override
 	protected Container buildMainPanel() {
-		dialog = new URIChooserDialog(getJFrame(), "", new URIChooser[]{new FileChooserPanel(),new DropboxURIChooser(service)});
-		dialog.setTitle("Save");
-		dialog.setSaveDialog(true);
-
-		JPanel panel = new JPanel();
-		final JLabel selectedFile = new JLabel("No file selected"); 
-		panel.add(selectedFile);
-		final JButton btnOnly = new JButton("Open Dropbox");
-		panel.add(btnOnly);
-		btnOnly.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dialog.setSelectedURI(lastSelected);
-				dialog.pack();
-				lastSelected = dialog.showDialog();
-				if (lastSelected!=null) {
-					selectedFile.setText(lastSelected.toString());
-				}
-			}
-		});
-		JButton readBtn = new JButton("Read");
-		panel.add(readBtn);
-		readBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					doRead(lastSelected);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		JButton writeBtn = new JButton("Write");
-		panel.add(writeBtn);
-		writeBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					doWrite(lastSelected);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		return panel;
+		return new DemoPanel(this, choosers);
 	}
 
-	protected void doRead(URI uri) throws IOException {
+	public void doRead(URI uri) throws IOException {
+		Service service = getService(uri, choosers);
 		SynchronizationState state = service.synchronize(uri, null, Locale.getDefault());
 		if (SynchronizationState.REMOTE_DELETED.equals(state)) {
 			System.out.println("Remote file has been deleted");
@@ -129,7 +76,8 @@ public class Test extends Application {
 		}
 	}
 
-	protected void doWrite(URI uri) throws IOException {
+	public void doWrite(URI uri) throws IOException {
+		Service service = getService(uri, choosers);
 		File file = service.getLocalFileForWriting(uri);
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
 		try {
@@ -145,6 +93,16 @@ public class Test extends Application {
 		} else {
 			System.out.println ("File was sent to Dropbox");
 		}
+	}
+	
+	public static Service getService(URI uri, URIChooser[] choosers) {
+		String scheme = uri.getScheme();
+		for (URIChooser uriChooser : choosers) {
+			if (uriChooser.getScheme().equals(scheme)) {
+				return uriChooser.getService();
+			}
+		}
+		return null;
 	}
 
 	/**

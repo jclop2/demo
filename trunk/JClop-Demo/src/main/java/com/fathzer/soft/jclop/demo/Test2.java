@@ -4,42 +4,34 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import com.dropbox.core.DbxAppInfo;
-import com.dropbox.core.DbxRequestConfig;
-import com.fathzer.soft.jclop.SynchronizationState;
-import com.fathzer.soft.jclop.dropbox.DbxConnectionData;
 import com.fathzer.soft.jclop.dropbox.DropboxService;
 import com.fathzer.soft.jclop.dropbox.swing.DropboxURIChooser;
-import com.fathzer.soft.jclop.swing.URIChooser;
-import com.fathzer.soft.jclop.swing.FileChooserPanel;
 import com.fathzer.soft.jclop.swing.URIChooserDialog;
 import com.fathzer.soft.jclop.swing.AbstractURIChooserPanel;
 import com.fathzer.soft.ajlib.swing.Utils;
-import com.fathzer.soft.ajlib.swing.framework.Application;
 import com.fathzer.soft.ajlib.utilities.FileUtils;
 
 public class Test2 extends Test {
 	private URI lastSelected = null;
-	private DropboxService service;
 	private URIChooserDialog dialog;
 	
+	private DropboxService dbxService;
+
 	Test2(DbxAppInfo appInfo) throws IOException {
 		super(appInfo);
 	}
@@ -47,7 +39,13 @@ public class Test2 extends Test {
 	@Override
 	protected Container buildMainPanel() {
 		JPanel panel = new JPanel();
-		dialog = new URIChooserDialog(getJFrame(), "", new URIChooser[]{new FileChooserPanel(),new DropboxURIChooser(service)});
+		dialog = new URIChooserDialog(getJFrame(), "", choosers);
+		try {
+			dbxService = (DropboxService) Test.getService(new URI("Dropbox://test"), choosers);
+		} catch (URISyntaxException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
 		JButton btn = new JButton("Open");
 		panel.add(btn);
@@ -103,11 +101,11 @@ public class Test2 extends Test {
 		btnOnly.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				AbstractURIChooserPanel dbChooser = new DropboxURIChooser(service);
-				if ((lastSelected!=null) && service.getScheme().equals(lastSelected.getScheme())) {
+				AbstractURIChooserPanel dbChooser = new DropboxURIChooser(dbxService);
+				if ((lastSelected!=null) && dbxService.getScheme().equals(lastSelected.getScheme())) {
 					dbChooser.setSelectedURI(lastSelected);
 				}
-				lastSelected = (new DropboxURIChooser(service)).showOpenDialog(Utils.getOwnerWindow(btnOnly), "Open Dropbox");
+				lastSelected = (new DropboxURIChooser(dbxService)).showOpenDialog(Utils.getOwnerWindow(btnOnly), "Open Dropbox");
 				System.out.println (lastSelected);
 			}
 		});
@@ -121,7 +119,7 @@ public class Test2 extends Test {
 		JComponent.setDefaultLocale(Locale.getDefault());
 		System.out.println ("Locale is set to "+Locale.getDefault());
 		dialog.setLocale(Locale.getDefault());
-		DropboxURIChooser dropboxChooser = new DropboxURIChooser(service);
+		DropboxURIChooser dropboxChooser = new DropboxURIChooser(dbxService);
 		System.out.println ("DropboxChooser is "+dropboxChooser.getLocale());
 		try {
 			dialog.setSaveDialog(save);
