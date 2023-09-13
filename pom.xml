@@ -19,17 +19,17 @@
   	<dependency>
   		<groupId>com.fathzer</groupId>
   		<artifactId>jclop-dropbox2</artifactId>
-  		<version>0.1.0</version>
+  		<version>0.1.6</version>
   	</dependency>
   	<dependency>
   		<groupId>com.fathzer</groupId>
   		<artifactId>ajlib</artifactId>
-  		<version>0.3.1</version>
+  		<version>0.3.15</version>
   	</dependency>
   	<dependency>
   		<groupId>org.slf4j</groupId>
   		<artifactId>slf4j-simple</artifactId>
-  		<version>1.7.12</version>
+  		<version>1.7.36</version>
   	</dependency>
   </dependencies>
 </project>
